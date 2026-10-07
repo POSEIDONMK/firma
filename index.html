@@ -43,7 +43,7 @@ button.sec{background:#fff;color:var(--navy);border:1px solid var(--line)}
 
 <div id="vista-error" class="card centro hide"><div class="big">⚠️</div><h1 id="error-titulo">No se pudo abrir el contrato</h1><p class="sub" id="error-msg"></p></div>
 
-<div id="vista-ok" class="card centro hide"><div class="big">✅</div><h1 id="ok-titulo">Firma registrada</h1><p class="sub" id="ok-msg"></p></div>
+<div id="vista-ok" class="card centro hide"><div class="big">✅</div><h1 id="ok-titulo">Firma registrada</h1><p class="sub" id="ok-msg"></p><button id="btn-copia" type="button" class="hide">Descargar copia firmada</button></div>
 
 <div id="vista-app" class="hide">
   <div id="banner-prueba" class="prueba hide"><b>MODO PRUEBA</b> · este contrato es una muestra y no tiene validez.</div>
@@ -138,7 +138,12 @@ button.sec{background:#fff;color:var(--navy);border:1px solid var(--line)}
       if(res.error==='YA_FIRMADO'){ $('ok-titulo').textContent='Ya firmaste este contrato'; $('ok-msg').textContent='Tu firma ya está registrada. No necesitas hacer nada más.'; return mostrar('vista-ok'); }
       $('error-msg').textContent=res.mensaje||'No se pudo abrir el contrato.'; return mostrar('vista-error');
     }
-    if(res.yaFirmo){ $('ok-titulo').textContent='Ya firmaste este contrato'; $('ok-msg').textContent='Tu firma ya está registrada. No necesitas hacer nada más.'; return mostrar('vista-ok'); }
+    if(res.yaFirmo){
+      $('ok-titulo').textContent='Ya firmaste este contrato';
+      $('ok-msg').textContent = res.copia ? 'El contrato quedó firmado por ambas partes. Puedes descargar tu copia.' : 'Tu firma ya está registrada. No necesitas hacer nada más.';
+      mostrarEl('btn-copia', !!res.copia);
+      return mostrar('vista-ok');
+    }
     estado.rol=res.rol; estado.editable=!!res.editable;
     mostrarEl('banner-prueba', !!res.modo_prueba);
     $('titulo').textContent='Contrato '+res.numero;
@@ -188,6 +193,13 @@ button.sec{background:#fff;color:var(--navy);border:1px solid var(--line)}
     if(!res.ok){ msg('msg-codigo',res.mensaje||'No se pudo firmar.','err'); return; }
     $('ok-titulo').textContent = res.estado==='firmado' ? 'Contrato firmado por ambas partes' : 'Firma registrada';
     $('ok-msg').textContent = res.mensaje||'Gracias.'; mostrar('vista-ok');
+  });
+
+  $('btn-copia').addEventListener('click', async function(){
+    var b=$('btn-copia'); b.disabled=true;
+    var res=await api('copia'); b.disabled=false;
+    if(res.ok && res.url){ var a=document.createElement('a'); a.href=res.url; a.target='_blank'; a.rel='noopener'; document.body.appendChild(a); a.click(); a.remove(); }
+    else { $('ok-msg').textContent=res.mensaje||'No se pudo descargar la copia. Intenta de nuevo.'; }
   });
 
   iniciar();
