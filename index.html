@@ -155,7 +155,7 @@ button.sec{background:#fff;color:var(--navy);border:1px solid var(--line)}
       $('n-contrato').textContent='2'; $('n-firma').textContent='3'; $('n-codigo').textContent='4';
     } else {
       $('n-contrato').textContent='1'; $('n-firma').textContent='2'; $('n-codigo').textContent='3';
-      if(res.rol==='poseidon') $('f-nombre').value='Mario Valenzuela Varela';
+      if(res.rol==='poseidon'){ var fs=res.firmante_sugerido||{}; $('f-nombre').value=fs.nombre||'Mario Valenzuela Varela'; $('f-doc').value=fs.documento||''; }
       mostrarPasoContrato(res);
     }
     $('destino-txt').dataset.tel=res.telefono||'';
